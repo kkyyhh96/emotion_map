@@ -14,7 +14,7 @@ class photo_coordinates():
         self.photo_accuracy = photo_accuracy
 
     def input_coordinates(self):
-
+        print("coordinate")
 
 # flickr api信息
 def flickrAPI():
