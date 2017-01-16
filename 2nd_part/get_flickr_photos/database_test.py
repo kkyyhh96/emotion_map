@@ -26,7 +26,7 @@ cur.execute("UPDATE photos "
             "SET url='10'"
             "WHERE id=6")
 conn.commit()
-#修改数据
+#删除数据
 cur.execute("DELETE FROM photos "
            "WHERE id=11")
 conn.commit()
