@@ -43,4 +43,4 @@ def query_photo(connection, cursor):
 
 # 情绪识别
 def emotion_recognition(url):
-    request = requests.post(url=url, params)
+    request = requests.post(url=url)
