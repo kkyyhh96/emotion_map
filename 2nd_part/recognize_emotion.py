@@ -4,7 +4,6 @@
 
 import psycopg2
 import requests
-import urllib
 
 
 # 连接数据库
