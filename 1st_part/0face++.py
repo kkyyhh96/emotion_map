@@ -26,8 +26,8 @@ def faceDetect(lines):
             length=len(face['face'])
             if length>0:
                 faceFile=open(facePath,'a')
-				faceFile.write(line)
-				faceFile.close()
+                faceFile.write(line)
+                faceFile.close()
                 print("Write Success!")
             else:
                 print("Detect Success!While no face!")

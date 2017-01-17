@@ -15,12 +15,12 @@ class flickr_photo(object):
         self.radius = photo_radius
 
     # 将照片插入数据库
-    def insert_db(self, db_cursor):
+    def insert_db(self, db_connection, db_cursor):
         try:
             sql_command_insert = "INSERT INTO photo(id,url,site,radius) " \
                                  "VALUES(" + self.id + ",'" + self.url + "','" + self.site + "','" + self.radius + ")"
             db_cursor.execute(sql_command_insert)
-            site = db_cursor.fetchone()
+            db_connection.commit()
             return True
         except Exception as e:
             print(e)
@@ -29,27 +29,35 @@ class flickr_photo(object):
 
 # 连接数据库
 def db_connect():
-    connection = psycopg2.connect(database="EmotionMap", user="postgres",
-                                  password="postgres", host="127.0.0.1", port="5432")
-    cursor = connection.cursor()
-    return connection, cursor
+    try:
+        connection = psycopg2.connect(database="EmotionMap", user="postgres",
+                                      password="postgres", host="127.0.0.1", port="5432")
+        cursor = connection.cursor()
+        print("Database Connection has been opened completely!")
+        return connection, cursor
+    except Exception as e:
+        print(e)
 
 
 # 查询需要挖掘数据的地点
-def query_site(db_cursor):
+def query_site(db_connection, db_cursor):
     sql_command_select = "SELECT * " \
                          "FROM site " \
                          "WHERE start_query=='FALSE'"
     db_cursor.execute(sql_command_select)
     site = db_cursor.fetchone()
+    # 如果存在这样的地点,记录经纬度进行挖掘
     if site is not None:
         site_name = site[1]
         lat = site[2][0]
         lon = site[2][1]
         sql_command_update = "UPDATE site " \
-                             "SET start_query='FALSE' " \
+                             "SET start_query='TRUE' " \
                              "WHERE site_name=='" + str(site_name) + "'"
+        db_cursor.execute(sql_command_update)
+        db_connection.commit()
         return site, lat, lon
+    # 不存在这样的地点,说明已经全部挖掘完毕
     else:
         return None
 
@@ -63,7 +71,7 @@ def flickrAPI():
 
 
 # 计算时间
-def compute_time(site, latitude, longitude, cursor, r=5):
+def compute_time(site, latitude, longitude, r=5):
     for year in list(range(2012, 2017)):
         for month in list(range(1, 13)):
             datemin = str(year) + "-" + str(month) + "-" + str("01")
@@ -71,14 +79,14 @@ def compute_time(site, latitude, longitude, cursor, r=5):
                 datemax = str(year + 1) + "-01-01"
             else:
                 datemax = str(year) + "-" + str(month + 1) + "-" + str("01")
-            get_photo_from_location(site, latitude, longitude, datemin, datemax, cursor, r=5)
+            get_photo_from_location(site, latitude, longitude, datemin, datemax, r=5)
 
 
 # 获取照片
-def get_photo_from_location(site, latitude, longitude, datemin, datemax, cursor, r=5):
+def get_photo_from_location(site, latitude, longitude, datemin, datemax, r=5):
     flickr = flickrAPI()
+    # 获取所有图片
     try:
-        # 获取所有图片
         photos = flickr.walk(lat=latitude, lon=longitude, radius=r,
                              min_taken_date=datemin, max_taken_date=datemax, per_page=500, extras='url_c')
     except Exception as e:
@@ -87,21 +95,20 @@ def get_photo_from_location(site, latitude, longitude, datemin, datemax, cursor,
     try:
         for photo_url in photos:
             url = photo_url.get('url_c')
+            # 如果url不为空,将该图片插入数据库
             if url is not None:
                 photo_id = photo_url.get('id')
                 photo = flickr_photo(photo_id, site, url, r)
-                if photo.insert_db(cursor):  # 插入数据库
+                if photo.insert_db(db_connection, db_cursor):
                     print("Success! Photo id:" + id + "\tPhoto url:" + url)
     except Exception as e:
         print(e)
 
 
 # 关闭数据库
-def close_connection(db_cursor, site_name):
+def close_connection(connection, site_name):
     try:
-        sql_command_update = "UPDATE site " \
-                             "SET end_query='FALSE' " \
-                             "WHERE site_name=='" + str(site_name) + "'"
+        connection.close()
         print("Database Connection has been closed completely!")
         return True
     except Exception as e:
@@ -109,10 +116,14 @@ def close_connection(db_cursor, site_name):
 
 
 # 主操作步骤
-db_connection, db_cursor = db_connect()
-site, lat, lon = query_site(db_cursor)
-if site is not None:
-    compute_time(site, lat, lon, db_cursor, r=1)
-    close_connection(db_cursor,site)
-else:
-    print("All sites have been recorded!")
+def __main__():
+    db_connection, db_cursor = db_connect()
+    site, lat, lon = query_site(db_connection, db_cursor)
+    if site is not None:
+        compute_time(site, lat, lon, r=1)
+        close_connection(db_connection, site)
+    else:
+        print("All sites have been recorded!")
+
+
+__main__()
