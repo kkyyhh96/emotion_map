@@ -45,7 +45,8 @@ def db_connect():
 def query_site(db_connection, db_cursor):
     sql_command_select = "SELECT * " \
                          "FROM site " \
-                         "WHERE start_query='FALSE'"
+                         "WHERE start_query='FALSE'" \
+                         "LIMIT 1"
     db_cursor.execute(sql_command_select)
     site = db_cursor.fetchone()
     # 如果存在这样的地点,记录经纬度进行挖掘
