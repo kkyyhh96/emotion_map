@@ -20,7 +20,6 @@ print(photo_info)
 photo_info=flickr.photos.getInfo(photo_id=photo_id,format='json')
 print(photo_info.decode())
 data=photo_info.decode()
-
 dataj=json.loads(data)
 print(dataj['photo']['dates']['posted'])
 
