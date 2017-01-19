@@ -18,7 +18,8 @@ class flickr_photo(object):
     def insert_db(self, db_connection, db_cursor):
         try:
             sql_command_insert = "INSERT INTO photo(id,url,site,radius) " \
-                                 "VALUES(" + self.id + ",'" + self.url + "','" + self.site + "','" + self.radius + ")"
+                                 "VALUES(" + str(self.id) + ",'" + self.url + "','" + self.site + "'," + str(
+                self.radius) + ")"
             db_cursor.execute(sql_command_insert)
             db_connection.commit()
             return True
@@ -43,23 +44,23 @@ def db_connect():
 def query_site(db_connection, db_cursor):
     sql_command_select = "SELECT * " \
                          "FROM site " \
-                         "WHERE start_query=='FALSE'"
+                         "WHERE start_query='FALSE'"
     db_cursor.execute(sql_command_select)
     site = db_cursor.fetchone()
     # 如果存在这样的地点,记录经纬度进行挖掘
     if site is not None:
         site_name = site[1]
-        lat = site[2][0]
-        lon = site[2][1]
+        lat = site[2].split(',')[0].split('(')[1]
+        lon = site[2].split(',')[1].split(')')[0]
         sql_command_update = "UPDATE site " \
                              "SET start_query='TRUE' " \
-                             "WHERE site_name=='" + str(site_name) + "'"
+                             "WHERE site_name='" + str(site_name) + "'"
         db_cursor.execute(sql_command_update)
         db_connection.commit()
-        return site, lat, lon
+        return site_name, lat, lon
     # 不存在这样的地点,说明已经全部挖掘完毕
     else:
-        return None
+        return None, None, None
 
 
 # flickr api信息
@@ -71,19 +72,19 @@ def flickrAPI():
 
 
 # 计算时间
-def compute_time(site, latitude, longitude, r=5):
-    for year in list(range(2012, 2017)):
-        for month in list(range(1, 13)):
+def compute_time(db_connection, db_cursor, site, latitude, longitude, r=5):
+    for year in list(range(2016, 2017)):
+        for month in list(range(7, 13)):
             datemin = str(year) + "-" + str(month) + "-" + str("01")
             if month == 12:
                 datemax = str(year + 1) + "-01-01"
             else:
                 datemax = str(year) + "-" + str(month + 1) + "-" + str("01")
-            get_photo_from_location(site, latitude, longitude, datemin, datemax, r=5)
+            get_photo_from_location(db_connection, db_cursor, site, latitude, longitude, datemin, datemax, r=5)
 
 
 # 获取照片
-def get_photo_from_location(site, latitude, longitude, datemin, datemax, r=5):
+def get_photo_from_location(db_connection, db_cursor, site, latitude, longitude, datemin, datemax, r=5):
     flickr = flickrAPI()
     # 获取所有图片
     try:
@@ -97,7 +98,7 @@ def get_photo_from_location(site, latitude, longitude, datemin, datemax, r=5):
             url = photo_url.get('url_c')
             # 如果url不为空,将该图片插入数据库
             if url is not None:
-                photo_id = photo_url.get('id')
+                photo_id = int(photo_url.get('id'))
                 photo = flickr_photo(photo_id, site, url, r)
                 if photo.insert_db(db_connection, db_cursor):
                     print("Success! Photo id:" + id + "\tPhoto url:" + url)
@@ -120,7 +121,7 @@ def __main__():
     db_connection, db_cursor = db_connect()
     site, lat, lon = query_site(db_connection, db_cursor)
     if site is not None:
-        compute_time(site, lat, lon, r=1)
+        compute_time(db_connection, db_cursor, site, lat, lon, r=1)
         close_connection(db_connection, site)
     else:
         print("All sites have been recorded!")

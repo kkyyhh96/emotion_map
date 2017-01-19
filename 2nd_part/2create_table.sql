@@ -8,7 +8,7 @@ CREATE INDEX site_name_index ON site(site_name);
 CREATE INDEX start_query ON site(start_query);
 
 CREATE TABLE photo
-(id INTEGER PRIMARY KEY,
+(id BIGINT PRIMARY KEY,
 url TEXT NOT NULL,
 owner CHARACTER,
 site CHARACTER VARYING(30) NOT NULL,
@@ -30,7 +30,7 @@ CREATE INDEX photo_start_info_index ON photo(start_info);
 CREATE INDEX photo_start_recog_index ON photo(start_recog);
 
 CREATE TABLE facepp
-(id INTEGER PRIMARY KEY,
+(id BIGINT PRIMARY KEY,
 photo_id INTEGER NOT NULL,
 site CHARACTER VARYING(30) NOT NULL,
 gender INTEGER NOT NULL,
@@ -42,7 +42,7 @@ glass FLOAT NOT NULL
 CREATE INDEX facepp_photo_id_index ON facepp(photo_id);
 
 CREATE TABLE ms_emotion
-(id INTEGER PRIMARY KEY,
+(id BIGINT PRIMARY KEY,
 photo_id INTEGER NOT NULL,
 site CHARACTER(30) NOT NULL,
 anger FLOAT NOT NULL,
