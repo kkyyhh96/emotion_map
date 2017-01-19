@@ -25,6 +25,7 @@ class photo_coordinates():
             return True
         except Exception as e:
             print(e)
+            connection.rollback()
             return False
 
 
@@ -37,18 +38,26 @@ def db_connect():
 
 
 # 查询需要补充信息的照片
-def query_photo(db_cursor):
-    sql_command_select = "SELECT * " \
+def query_photo(db_connection,db_cursor):
+    sql_command_select = "SELECT id " \
                          "FROM photo " \
-                         "WHERE start_info=='FALSE'"
+                         "WHERE start_info='FALSE'" \
+                         "LIMIT 1"
     db_cursor.execute(sql_command_select)
     photo = db_cursor.fetchone()
     if photo is not None:
         photo_id = photo[0]
-        sql_command_update = "UPDATE site " \
+        try:
+            sql_command_update = "UPDATE site " \
                              "SET start_info='TRUE' " \
-                             "WHERE id=='" + str(photo_id) + "'"
-        return photo_id
+                             "WHERE id=" + str(photo_id)
+            db_cursor.execute(sql_command_update)
+            db_connection.commit()
+            return photo_id
+        except Exception as e:
+            print(e)
+            db_connection.rollback()
+            return None
     else:
         return None
 
