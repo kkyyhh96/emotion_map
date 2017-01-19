@@ -25,6 +25,7 @@ class flickr_photo(object):
             return True
         except Exception as e:
             print(e)
+            db_connection.rollback()
             return False
 
 
@@ -101,7 +102,7 @@ def get_photo_from_location(db_connection, db_cursor, site, latitude, longitude,
                 photo_id = int(photo_url.get('id'))
                 photo = flickr_photo(photo_id, site, url, r)
                 if photo.insert_db(db_connection, db_cursor):
-                    print("Success! Photo id:" + id + "\tPhoto url:" + url)
+                    print("Success! Photo id:" + str(photo_id) + "\tPhoto url:" + url)
     except Exception as e:
         print(e)
 
