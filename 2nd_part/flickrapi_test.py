@@ -19,7 +19,17 @@ photo_info = flickr.photos.geo.getLocation(photo_id=photo_id, format='json')
 print(photo_info)
 photo_info=flickr.photos.getInfo(photo_id=photo_id,format='json')
 print(photo_info.decode())
-data=photo_info.decode()
-dataj=json.loads(data)
-print(dataj['photo']['dates']['posted'])
+photo_info=photo_info.decode()
+photo_info=json.loads(photo_info)
+print(photo_info["photo"]["owner"]["nsid"])
+print(photo_info["photo"]["dates"]["posted"])
+print(photo_info["photo"]["dates"]["taken"])
+print(photo_info["photo"]["location"]["latitude"])
+print(photo_info["photo"]["location"]["longitude"])
+print(photo_info["photo"]["location"]["accuracy"])
+try:
+    print(photo_info["phota"])
+except Exception as e:
+    print("a")
+
 

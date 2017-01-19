@@ -4,6 +4,7 @@
 
 import flickrapi
 import psycopg2
+import json
 
 
 # 图片经纬度信息类
@@ -75,6 +76,8 @@ def get_photo_coordinates(photo_id):
     flickr = flickrAPI()
     photo_info = flickr.photos.geo.getLocation(photo_id=photo_id, format='json')
     # 解析结果
+    photo_info=photo_info.decode()
+    photo_info=json.load(photo_info)
     photo_owner = photo_info[1]
     photo_lat = photo_info[2]
     photo_lon = photo_info[3]
