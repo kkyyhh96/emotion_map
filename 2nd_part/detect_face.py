@@ -3,6 +3,8 @@
 # author:kyh
 
 from facepp import API
+import psycopg2
+
 
 # face++的人脸
 class facepp_face():
@@ -19,19 +21,55 @@ class facepp_face():
         print "hello"
 
 
+# 连接数据库
+def db_connect():
+    connection = psycopg2.connect(database="EmotionMap", user="postgres",
+                                  password="postgres", host="127.0.0.1", port="5432")
+    cursor = connection.cursor()
+    return connection, cursor
+
+
 # face++API
 def faceppAPI():
-    api_key = '14d6d4c65fe5d7739db529369110b5ca'
-    api_secret = 's5u3SLNzD5lCMyHioXKFOvsYx-jCl4Wl'
+    api_key = 'cRe00o7bQIKV1DnOGK8yX_KAhkB9_aKH'
+    api_secret = 'NOMOGO6OH0Z6xP5tbf9IBo2ldE'
     api = API(api_key, api_secret)
     return api
 
-#查询没被检测过人脸的照片
-def photo_detect():
-    print "hello"
+
+# 查询没被检测过人脸的照片
+def photo_detect(db_connection, db_cursor):
+    sql_command_select = "SELECT id,url FROM photo WHERE start_detect=FALSE LIMIT 1"
+    db_cursor.execute(sql_command_select)
+    photo = db_cursor.fetchone()
+    if photo is not None:
+        photo_id=photo[0]
+        photo_url=photo[1]
+        try:
+            sql_command_update = "UPDATE photo SET start_detect='TRUE' WHERE id={0}".format(photo_id)
+            db_cursor.execute(sql_command_update)
+            db_connection.commit()
+            return photo_id,photo_url
+        except Exception as e:
+            print e
+            db_connection.rollback()
+            return None,None
+    else:
+        return None,None
+
 # 探测人脸
 def face_detect(photo_url):
     api = faceppAPI()
     face_info = api.detection.detect(url=photo_url)
-    length=len(face_info['face'])
+    print face_info
+    length = len(face_info['face'])
     face = facepp_face()
+
+
+
+def __main__():
+    connection, cursor = db_connect()
+    id,url=photo_detect(connection, cursor)
+    face_detect(url)
+
+__main__()
