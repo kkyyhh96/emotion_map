@@ -38,6 +38,7 @@ def db_connect():
     connection = psycopg2.connect(database="EmotionMap", user="postgres",
                                   password="postgres", host="127.0.0.1", port="5432")
     cursor = connection.cursor()
+    print("Database Connection has been opened completely!")
     return connection, cursor
 
 

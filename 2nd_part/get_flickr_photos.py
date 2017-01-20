@@ -17,9 +17,9 @@ class flickr_photo(object):
     def insert_db(self, db_connection, db_cursor):
         try:
             sql_command_insert = "INSERT INTO photo(id,url,site) VALUES({0},'{1}','{2}')".format(self.id,
-                                                                                                     self.url,
-                                                                                                     self.site
-                                                                                                     )
+                                                                                                 self.url,
+                                                                                                 self.site
+                                                                                                 )
             db_cursor.execute(sql_command_insert)
             db_connection.commit()
             return True
@@ -105,7 +105,7 @@ def get_photo_from_location(db_connection, db_cursor, site, latitude, longitude,
 
 
 # 关闭数据库
-def close_connection(connection, site_name):
+def close_connection(connection):
     try:
         connection.close()
         print("Database Connection has been closed completely!")
