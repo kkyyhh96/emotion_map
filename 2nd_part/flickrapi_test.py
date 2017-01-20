@@ -27,9 +27,9 @@ print(photo_info["photo"]["dates"]["taken"])
 print(photo_info["photo"]["location"]["latitude"])
 print(photo_info["photo"]["location"]["longitude"])
 print(photo_info["photo"]["location"]["accuracy"])
-try:
-    print(photo_info["phota"])
-except Exception as e:
-    print("a")
+#try:
+print(photo_info["phota"])
+#except Exception as e:
+print("a")
 
 

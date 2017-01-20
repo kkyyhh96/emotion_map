@@ -10,13 +10,15 @@ CREATE INDEX start_query ON site(start_query);
 CREATE TABLE photo
 (id BIGINT PRIMARY KEY,
 url TEXT NOT NULL,
-owner CHARACTER,
+owner CHARACTER VARYING (30),
+owner_location CHARACTER VARYING (30),
 site CHARACTER VARYING(30) NOT NULL,
 coordinates POINT,
 radius FLOAT NOT NULL,
 photo_take_date DATE,
 photo_upload BIGINT,
 accuracy INTEGER,
+all_info TEXT NOT NULL,
 f_hasface BOOLEAN NOT NULL DEFAULT(FALSE),
 start_detect BOOLEAN NOT NULL DEFAULT(FALSE),
 start_info BOOLEAN NOT NULL DEFAULT(FALSE),
@@ -24,7 +26,7 @@ start_recog BOOLEAN NOT NULL DEFAULT(FALSE)
 );
 CREATE INDEX photo_id_index ON photo(id);
 CREATE INDEX photo_coordinates_index ON photo USING GIST(coordinates);
-CREATE INDEX photo_date_index ON photo(photo_date);
+CREATE INDEX photo_date_index ON photo(photo_take_date);
 CREATE INDEX photo_f_hasface_index ON photo(f_hasface);
 CREATE INDEX photo_start_detect_index ON photo(start_detect);
 CREATE INDEX photo_start_info_index ON photo(start_info);
