@@ -26,6 +26,7 @@ class photo_coordinates():
                 self.photo_accuracy, self.photo_id)
             cursor.execute(sql_command_update)
             connection.commit()
+            print("Success Input Coordinates!")
             return True
         except Exception as e:
             print(e)
@@ -107,6 +108,16 @@ def get_photo_coordinates(connection, cursor, photo_id):
     return coordinates.input_coordinates(connection, cursor)
 
 
+# 关闭数据库
+def close_connection(connection):
+    try:
+        connection.close()
+        print("Database Connection has been closed completely!")
+        return True
+    except Exception as e:
+        print(e)
+
+
 # 主要步骤
 def __main__():
     connection, cursor = db_connect()
@@ -117,6 +128,7 @@ def __main__():
             photo = query_photo(connection, cursor)
         except Exception as  e:
             print(e)
+    close_connection(connection)
     print("All photos have information!")
 
 

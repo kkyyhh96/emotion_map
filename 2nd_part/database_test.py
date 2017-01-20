@@ -5,7 +5,7 @@ conn = psycopg2.connect(database="EmotionMap", user="postgres",
                         password="postgres", host="127.0.0.1", port="5432")
 cur = conn.cursor()
 #读取数据
-cur.execute("SELECT * FROM photos")
+cur.execute("SELECT * FROM photo")
 data_1=cur.fetchone()
 print(data_1)
 data_2=cur.fetchmany(1)
