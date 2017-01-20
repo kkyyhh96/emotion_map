@@ -17,9 +17,10 @@ class flickr_photo(object):
     # 将照片插入数据库
     def insert_db(self, db_connection, db_cursor):
         try:
-            sql_command_insert = "INSERT INTO photo(id,url,site,radius) " \
-                                 "VALUES(" + str(self.id) + ",'" + self.url + "','" + self.site + "'," + str(
-                self.radius) + ")"
+            sql_command_insert = "INSERT INTO photo(id,url,site,radius) VALUES({0},'{1}','{2}',{3})".format(self.id,
+                                                                                                            self.url,
+                                                                                                            self.site,
+                                                                                                            self.radius)
             db_cursor.execute(sql_command_insert)
             db_connection.commit()
             return True
@@ -43,10 +44,7 @@ def db_connect():
 
 # 查询需要挖掘数据的地点
 def query_site(db_connection, db_cursor):
-    sql_command_select = "SELECT * " \
-                         "FROM site " \
-                         "WHERE start_query='FALSE'" \
-                         "LIMIT 1"
+    sql_command_select = "SELECT * FROM site WHERE start_query='FALSE' LIMIT 1"
     db_cursor.execute(sql_command_select)
     site = db_cursor.fetchone()
     # 如果存在这样的地点,记录经纬度进行挖掘
@@ -54,9 +52,7 @@ def query_site(db_connection, db_cursor):
         site_name = site[1]
         lat = site[2].split(',')[0].split('(')[1]
         lon = site[2].split(',')[1].split(')')[0]
-        sql_command_update = "UPDATE site " \
-                             "SET start_query='TRUE' " \
-                             "WHERE site_name='" + str(site_name) + "'"
+        sql_command_update="UPDATE site SET start_query='TRUE' WHERE site_name='{0}'".format(site_name)
         db_cursor.execute(sql_command_update)
         db_connection.commit()
         return site_name, lat, lon

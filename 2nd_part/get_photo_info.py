@@ -9,9 +9,11 @@ import json
 
 # 图片经纬度信息类
 class photo_coordinates():
-    def __init__(self, photo_id, photo_owner, photo_lat, photo_lon, photo_accuracy):
+    def __init__(self, photo_id, photo_owner, photo_post_date, photo_take_date, photo_lat, photo_lon, photo_accuracy):
         self.photo_id = photo_id
         self.photo_owner = photo_owner
+        self.photo_post_date = photo_post_date
+        self.photo_take_date = photo_take_date
         self.photo_lat = photo_lat
         self.photo_lon = photo_lon
         self.photo_accuracy = photo_accuracy
@@ -19,8 +21,9 @@ class photo_coordinates():
     # 输入经纬度等信息
     def input_coordinates(self, connection, cursor):
         try:
-            sql_command_update = "UPDATE photo " \
-                                 "SET owner= WHERE"
+            sql_command_update = "UPDATE photo SET owner={0},post_date={1},take_date={2},coordinates=POINT({3},{4}),accuracy={5} WHERE id={6}".format(
+                self.photo_owner, self.photo_post_date, self.photo_take_date, self.photo_lat, self.photo_lon,
+                self.photo_accuracy,self.photo_id)
             cursor.execute(sql_command_update)
             connection.commit()
             return True
@@ -39,19 +42,14 @@ def db_connect():
 
 
 # 查询需要补充信息的照片
-def query_photo(db_connection,db_cursor):
-    sql_command_select = "SELECT id " \
-                         "FROM photo " \
-                         "WHERE start_info='FALSE'" \
-                         "LIMIT 1"
+def query_photo(db_connection, db_cursor):
+    sql_command_select = "SELECT id FROM photo WHERE start_info='FALSE' LIMIT 1"
     db_cursor.execute(sql_command_select)
     photo = db_cursor.fetchone()
     if photo is not None:
         photo_id = photo[0]
         try:
-            sql_command_update = "UPDATE site " \
-                             "SET start_info='TRUE' " \
-                             "WHERE id=" + str(photo_id)
+            sql_command_update = "UPDATE site SET start_info='TRUE' WHERE id={0}".format(photo_id)
             db_cursor.execute(sql_command_update)
             db_connection.commit()
             return photo_id
@@ -74,23 +72,26 @@ def flickrAPI():
 # 获取图片的经纬度坐标等信息
 def get_photo_coordinates(photo_id):
     flickr = flickrAPI()
-    photo_info = flickr.photos.geo.getLocation(photo_id=photo_id, format='json')
+    photo_info = flickr.photos.getInfo(photo_id=photo_id, format='json')
+    photo_info = photo_info.decode()
+    photo_info = json.loads(photo_info)
     # 解析结果
-    photo_info=photo_info.decode()
-    photo_info=json.load(photo_info)
-    photo_owner = photo_info[1]
-    photo_lat = photo_info[2]
-    photo_lon = photo_info[3]
-    photo_accuracy = photo_info[4]
+    photo_owner = photo_info["photo"]["owner"]["nsid"])
+    photo_post_date = photo_info["photo"]["dates"]["posted"])
+    photo_take_date = photo_info["photo"]["dates"]["taken"])
+    photo_lat = photo_info["photo"]["location"]["latitude"])
+    photo_lon = photo_info["photo"]["location"]["longitude"])
+    photo_accuracy = photo_info["photo"]["location"]["accuracy"])
     # 将信息录入数据库
-    coordinates = photo_coordinates(photo_id, photo_owner, photo_lat, photo_lon, photo_accuracy)
+    coordinates = photo_coordinates(photo_id, photo_owner, photo_post_date, photo_take_date, photo_lat, photo_lon,
+                                    photo_accuracy)
     return coordinates.input_coordinates()
 
 
 # 主要步骤
 def __main__():
     connection, cursor = db_connect()
-    photo = query_photo(cursor)
+    photo = query_photo(connection, cursor)
     while photo is not None:
         try:
             get_photo_coordinates(photo)
