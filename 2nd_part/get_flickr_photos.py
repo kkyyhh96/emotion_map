@@ -71,14 +71,14 @@ def flickrAPI():
 
 # 计算时间
 def compute_time(db_connection, db_cursor, site, latitude, longitude, r=5):
-    for year in list(range(2016, 2017)):
-        for month in list(range(7, 13)):
+    for year in list(range(2012, 2017)):
+        for month in list(range(1, 13)):
             datemin = str(year) + "-" + str(month) + "-" + str("01")
             if month == 12:
                 datemax = str(year + 1) + "-01-01"
             else:
                 datemax = str(year) + "-" + str(month + 1) + "-" + str("01")
-            get_photo_from_location(db_connection, db_cursor, site, latitude, longitude, datemin, datemax, r=5)
+            get_photo_from_location(db_connection, db_cursor, site, latitude, longitude, datemin, datemax, r)
 
 
 # 获取照片
@@ -119,7 +119,7 @@ def __main__():
     db_connection, db_cursor = db_connect()
     site, lat, lon = query_site(db_connection, db_cursor)
     if site is not None:
-        compute_time(db_connection, db_cursor, site, lat, lon, r=1)
+        compute_time(db_connection, db_cursor, site, lat, lon, r=30)
         close_connection(db_connection, site)
     else:
         print("All sites have been recorded!")
