@@ -2,7 +2,7 @@
 (id INTEGER PRIMARY KEY,
 site_name CHARACTER VARYING(30) NOT NULL,
 coordinates POINT NOT NULL,
-start_query BOOLEAN NOT NULL DEFAULT(FALSE),
+start_query BOOLEAN NOT NULL DEFAULT(FALSE)
 );
 CREATE INDEX site_name_index ON site(site_name);
 CREATE INDEX start_query ON site(start_query);
