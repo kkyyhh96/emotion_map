@@ -2,6 +2,7 @@
 (id INTEGER PRIMARY KEY,
 site_name CHARACTER VARYING(30) NOT NULL,
 coordinates POINT NOT NULL,
+radius FLOAT NOT NULL,
 start_query BOOLEAN NOT NULL DEFAULT(FALSE)
 );
 CREATE INDEX site_name_index ON site(site_name);
@@ -14,7 +15,6 @@ owner CHARACTER VARYING (30),
 owner_location CHARACTER VARYING (30),
 site CHARACTER VARYING(30) NOT NULL,
 coordinates POINT,
-radius FLOAT NOT NULL,
 photo_take_date DATE,
 photo_upload BIGINT,
 accuracy INTEGER,
