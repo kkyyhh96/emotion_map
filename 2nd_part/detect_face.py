@@ -91,14 +91,14 @@ def photo_detect(db_connection, db_cursor):
             db_connection.rollback()
             return None, None, None
     else:
-        return None, None
+        return None, None,None
 
 
 # 探测人脸
 def face_detect(db_connection, db_cursor, id, photo_url, photo_site):
     try:
         result = faceppAPI(photo_url)
-        time.sleep(2)
+        time.sleep(1)
         if result is not None:
             faces = json.loads(result)["faces"]
             if len(faces) > 0:
