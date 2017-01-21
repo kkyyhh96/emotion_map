@@ -98,6 +98,7 @@ def photo_detect(db_connection, db_cursor):
 def face_detect(db_connection, db_cursor, id, photo_url, photo_site):
     try:
         result = faceppAPI(photo_url)
+        time.sleep(2)
         if result is not None:
             faces = json.loads(result)["faces"]
             if len(faces) > 0:

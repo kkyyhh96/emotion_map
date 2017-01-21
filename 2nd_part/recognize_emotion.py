@@ -3,8 +3,7 @@
 # author:kyh
 
 import psycopg2
-import requests
-import httplib, urllib, base64
+import http.client, urllib.request, urllib.parse, urllib.error, base64
 import json
 
 
@@ -47,14 +46,14 @@ def db_connect():
 
 # 查询存在人脸的照片
 def query_photo(connection, cursor):
-    sql_command_select = "SELECT * FROM photo WHERE f_hasface='TRUE' LIMIT 1"
+    sql_command_select = "SELECT id,url,site FROM photo WHERE f_hasface='TRUE' LIMIT 1"
     cursor.execute(sql_command_select)
     photo = cursor.fetchone()
     # 如果存在这样的照片,记录url
     if photo is not None:
         photo_id = photo[0]
         photo_url = photo[1]
-        photo_site = photo[3]
+        photo_site = photo[2]
         sql_command_update = "UPDATE photo SET start_recog='TRUE' WHERE id={0}".format(photo_id)
         cursor.execute(sql_command_update)
         connection.commit()
@@ -66,21 +65,24 @@ def query_photo(connection, cursor):
 
 # 情绪识别
 def emotion_recognition(url):
-    # Image to analyse (body of the request)
-    body = '{\'URL\': \'' + url + '\'}'
-    # API request for Emotion Detection
-    headers = {'Content-type': 'application/json', }
-    params = urllib.urlencode({'subscription-key': 'ad946a803d384c379690cb42eff4e0ed', })  # Enter EMOTION API key
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': '7cefe0616f6d4354a0660b12b83811d8',
+    }
+    body='{\'URL\':\''+url+'\'}'
+    params = urllib.parse.urlencode({
+    })
+
     try:
-        # Send httpquest
-        conn = httplib.HTTPSConnection('api.projectoxford.ai')
-        conn.request("POST", "/emotion/v1.0/recognize?%s" % params, body, headers)
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn.request("POST", "/emotion/v1.0/recognize?%s" % params,body, headers)
         response = conn.getresponse()
-        emotion_info = response.read()
+        data = response.read()
         conn.close()
+        return data.decode()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
-    return emotion_info
 
 
 def emotion_input(emotion_info, id, site, connection, cursor):
@@ -96,6 +98,16 @@ def emotion_input(emotion_info, id, site, connection, cursor):
         surprise = emotion['scores']['surprise']
         face = emotion_face(id, site, anger, contempt, disgust, fear, happiness, neutral, sadness, surprise)
         return face.input_emotion(connection, cursor)
+
+
+# 关闭数据库
+def close_connection(connection):
+    try:
+        connection.close()
+        print("Database Connection has been closed completely!")
+        return True
+    except Exception as e:
+        print(e)
 
 
 def __main__():
