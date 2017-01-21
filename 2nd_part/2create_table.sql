@@ -34,19 +34,19 @@ CREATE INDEX photo_start_recog_index ON photo(start_recog);
 
 CREATE TABLE facepp
 (id BIGINT PRIMARY KEY,
-photo_id INTEGER NOT NULL,
+photo_id BIGINT NULL,
 site CHARACTER VARYING(30) NOT NULL,
 gender INTEGER NOT NULL,
 age INTEGER NOT NULL,
-race CHARACTER(5) NOT NULL,
 smiling FLOAT NOT NULL,
-glass FLOAT NOT NULL
+smile_threshold FLOAT NOT NULL ,
+glass TEXT NOT NULL
 );
 CREATE INDEX facepp_photo_id_index ON facepp(photo_id);
 
 CREATE TABLE ms_emotion
 (id BIGINT PRIMARY KEY,
-photo_id INTEGER NOT NULL,
+photo_id BIGINT NOT NULL,
 site CHARACTER(30) NOT NULL,
 anger FLOAT NOT NULL,
 contempt FLOAT NOT NULL,
