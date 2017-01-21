@@ -5,6 +5,7 @@
 import psycopg2
 import requests
 import json
+import time
 
 
 # face++的人脸
@@ -58,6 +59,9 @@ def faceppAPI(url):
     facepp_url = 'https://api-cn.faceplusplus.com/facepp/v3/detect'
     api_key = 'iExD00qRzPaOm9lSFKhLMuKq-fVrs9pW'
     api_secret = 'B6_36b807WxgYLOTgjP94sc_QanKp-9T'
+    #facepp_url = 'https://api-us.faceplusplus.com/facepp/v3/detect'
+    #api_key = 'DCTCyC_D_3ZGW4VZVkmj25IJNUuNdXT4'
+    #api_secret = 'T9NzaLTeiSe_Rqtye0pUCs3Ed-ZQiq6V'
     try:
         params = dict(api_key=api_key, api_secret=api_secret, image_url=url, return_landmark=1,
                       return_attributes="gender,age,smiling,glass")
@@ -92,19 +96,24 @@ def photo_detect(db_connection, db_cursor):
 
 # 探测人脸
 def face_detect(db_connection, db_cursor, id, photo_url, photo_site):
-    result = faceppAPI(photo_url)
     try:
+        result = faceppAPI(photo_url)
         if result is not None:
             faces = json.loads(result)["faces"]
-            for face_info in faces:
-                each_face = face_info["attributes"]
-                face_gender = each_face["gender"]["value"]
-                face_age = each_face["age"]["value"]
-                face_smile = each_face["smile"]["value"]
-                face_smile_threshold = each_face["smile"]["threshold"]
-                face_glass = each_face["glass"]["value"]
-                face = facepp_face(id, photo_site, face_gender, face_age, face_smile, face_smile_threshold, face_glass)
-                return face.input_face(db_connection, db_cursor)
+            if len(faces) > 0:
+                for face_info in faces:
+                    each_face = face_info["attributes"]
+                    face_gender = each_face["gender"]["value"]
+                    face_age = each_face["age"]["value"]
+                    face_smile = each_face["smile"]["value"]
+                    face_smile_threshold = each_face["smile"]["threshold"]
+                    face_glass = each_face["glass"]["value"]
+                    face = facepp_face(id, photo_site, face_gender, face_age, face_smile, face_smile_threshold,
+                                       face_glass)
+                    return face.input_face(db_connection, db_cursor)
+            else:
+                print("No faces!")
+                return None
     except Exception as e:
         print(e)
         return None
