@@ -10,3 +10,5 @@ FROM photo
 UPDATE photo
 SET start_info=FALSE
 WHERE start_info=TRUE
+
+
