@@ -12,7 +12,7 @@ class face_emotion(object):
     def __init__(self, site, url, date, anger, contempt, disgust, fear, happiness, neutral, sadness, surprise):
         self.site = site
         self.url = url
-        self.date = date
+        self.date = date+"-01"
         self.anger = anger
         self.contempt = contempt
         self.disgust = disgust
@@ -24,12 +24,17 @@ class face_emotion(object):
 
     def insert_emotion(self, connection, cursor):
         try:
-            sql_command_update = "INSERT INTO "
+            sql_command_update = "INSERT INTO emotion(site,url,photo_time,anger,contempt,disgust,fear,happiness,neutral," \
+                                 "sadness,surprise) VALUES('{0}','{1}','{2}',{3},{4},{5},{6},{7},{8},{9},{10});".format(
+                self.site,self.url,
+                self.date, self.anger, self.contempt, self.disgust, self.fear, self.happiness, self.neutral,
+                self.sadness, self.surprise)
             cursor.execute(sql_command_update)
             connection.commit()
             # print("Insert into database successfully!")
             return True
         except Exception as e:
+            connection.rollback()
             print(e)
 
 
