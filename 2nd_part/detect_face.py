@@ -2,22 +2,10 @@
 # version:python3.5.1
 # author:kyh
 
-import psycopg2
-import requests
 import json
 
-# face++的人脸
-class facepp_face():
-    def __init__(self, photo_id, site, gender, age, smile, glass):
-        self.photo_id = photo_id
-        self.site = site
-        self.gender = gender
-        self.age = age
-        self.smile = smile
-        self.glass = glass
-
-    def input_face(self):
-        print("hello")
+import psycopg2
+import requests
 
 
 # 连接数据库
@@ -28,15 +16,22 @@ def db_connect():
     return connection, cursor
 
 
-# face++API
+# face++API,如果存在人脸,返回True,否则返回False
 def faceppAPI(url):
     facepp_url = 'https://api-cn.faceplusplus.com/facepp/v3/detect'
-    api_key = 'iExD00qRzPaOm9lSFKhLMuKq-fVrs9pW'
-    api_secret = 'B6_36b807WxgYLOTgjP94sc_QanKp-9T'
     try:
-        params = dict(api_key=api_key, api_secret=api_secret, image_url=url,return_landmark=1,return_attributes="gender,age,smiling,glass,headpose,facequality,blur")
-        result = requests.post(url=facepp_url, params=params,timeout=15)
-        return result.text
+        params = {
+            "api_key": "ca21aa8b4624eb745d683da3e09e0b0c",
+            "api_secret": "jwkFQK9hMkVqI1TliYDLKxZBzSkVFr5T",
+            "url": str(url)
+        }
+        result = requests.post(url=facepp_url, params=params, timeout=15)
+        faces = json.loads(result.text)
+        face_count = faces["face"]
+        if len(face_count) > 0:
+            return True
+        else:
+            return False
     except Exception as e:
         print(e)
         return None
@@ -64,18 +59,46 @@ def photo_detect(db_connection, db_cursor):
 
 
 # 探测人脸
-def face_detect(id,photo_url):
+def face_detect(db_connection, db_cursor, id, photo_url):
+    count = 0
     result = faceppAPI(photo_url)
-    if result is not None:
-        faces=json.loads(result)["faces"]
-        for each_face in faces:
-            face=facepp_face(id,)
+    # 如果出错,则重新探查
+    while result is None and count <= 5:
+        result = faceppAPI(photo_url)
+        count = count + 1
+    else:
+        # 没有出错,更改数据库
+        if result is True:
+            try:
+                sql_command_update = "UPDATE photo SET f_hasface='TRUE' WHERE id={0}".format(id)
+                db_cursor.execute(sql_command_update)
+                db_connection.commit()
+                print("Update success!")
+            except Exception as e:
+                db_connect().rollback()
+                print(e)
+
+
+# 关闭数据库
+def close_connection(connection):
+    try:
+        connection.close()
+        print("Database Connection has been closed completely!")
+        return True
+    except Exception as e:
+        print(e)
+
 
 def __main__():
     connection, cursor = db_connect()
     id, url = photo_detect(connection, cursor)
-    #face_detect(id,url)
-    face_detect(id,"http://bj-mc-prod-asset.oss-cn-beijing.aliyuncs.com/mc-official/images/face/demo-pic6.jpg")
+    while id is not None:
+        try:
+            face_detect(connection, cursor, id, url)
+            id, url = photo_detect(connection, cursor)
+        except Exception as e:
+            print(e)
+    close_connection(connection)
 
 
 __main__()
