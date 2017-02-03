@@ -18,7 +18,7 @@ def db_connect():
 
 # face++API,如果存在人脸,返回True,否则返回False
 def faceppAPI(url):
-    facepp_url = 'https://api-cn.faceplusplus.com/facepp/v3/detect'
+    facepp_url = 'http://apicn.faceplusplus.com/v2/detection/detect'
     try:
         params = {
             "api_key": "ca21aa8b4624eb745d683da3e09e0b0c",
