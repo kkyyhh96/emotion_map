@@ -45,7 +45,7 @@ glass TEXT NOT NULL
 CREATE INDEX facepp_photo_id_index ON facepp(photo_id);
 
 CREATE TABLE ms_emotion
-(id BIGINT PRIMARY KEY,
+(id SERIAL PRIMARY KEY,
 photo_id BIGINT NOT NULL,
 site CHARACTER(30) NOT NULL,
 anger FLOAT NOT NULL,
@@ -57,4 +57,5 @@ neutral FLOAT NOT NULL,
 sadness FLOAT NOT NULL,
 surprise FLOAT NOT NULL
 );
-	
+CREATE INDEX ms_emotion_photo_id_index ON ms_emotion(photo_id);
+CREATE INDEX ms_emotion_happiness ON ms_emotion(happiness);
