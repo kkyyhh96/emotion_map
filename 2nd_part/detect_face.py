@@ -10,7 +10,7 @@ import requests
 
 # 连接数据库
 def db_connect():
-    connection = psycopg2.connect(database="EmotionMap", user="postgres",
+    connection = psycopg2.connect(database="StockMap", user="postgres",
                                   password="postgres", host="127.0.0.1", port="5432")
     cursor = connection.cursor()
     return connection, cursor
@@ -18,16 +18,16 @@ def db_connect():
 
 # face++API,如果存在人脸,返回True,否则返回False
 def faceppAPI(url):
-    facepp_url = 'http://apicn.faceplusplus.com/v2/detection/detect'
+    facepp_url = 'https://api-cn.faceplusplus.com/facepp/v3/detect'
     try:
         params = {
-            "api_key": "ca21aa8b4624eb745d683da3e09e0b0c",
-            "api_secret": "jwkFQK9hMkVqI1TliYDLKxZBzSkVFr5T",
-            "url": str(url)
+            "api_key": "h-B_qcMH3TNwKPDtRIR0gppX99KE8a0B",
+            "api_secret": "VruBVr-g0w1jVVBmWalQ3-oq3l9Qy7uT",
+            "image_url": str(url)
         }
         result = requests.post(url=facepp_url, params=params, timeout=15)
         faces = json.loads(result.text)
-        face_count = faces["face"]
+        face_count = faces["faces"]
         if len(face_count) > 0:
             return True
         else:
@@ -77,6 +77,8 @@ def face_detect(db_connection, db_cursor, id, photo_url):
             except Exception as e:
                 db_connect().rollback()
                 print(e)
+        else:
+            print("No faces!")
 
 
 # 关闭数据库
@@ -91,11 +93,11 @@ def close_connection(connection):
 
 def __main__():
     connection, cursor = db_connect()
-    id, url = photo_detect(connection, cursor)
-    while id is not None:
+    photo_id, url = photo_detect(connection, cursor)
+    while photo_id is not None:
         try:
-            face_detect(connection, cursor, id, url)
-            id, url = photo_detect(connection, cursor)
+            face_detect(connection, cursor, photo_id, url)
+            photo_id, url = photo_detect(connection, cursor)
         except Exception as e:
             print(e)
     close_connection(connection)

@@ -5,6 +5,7 @@
 import flickrapi
 import psycopg2
 import json
+import time
 
 
 # 图片经纬度信息类
@@ -26,6 +27,7 @@ class photo_coordinates():
                 self.photo_accuracy, self.photo_id)
             cursor.execute(sql_command_update)
             connection.commit()
+            print("Success Input Coordinates!")
             return True
         except Exception as e:
             print(e)
@@ -35,9 +37,10 @@ class photo_coordinates():
 
 # 连接数据库
 def db_connect():
-    connection = psycopg2.connect(database="EmotionMap", user="postgres",
+    connection = psycopg2.connect(database="StockMap", user="postgres",
                                   password="postgres", host="127.0.0.1", port="5432")
     cursor = connection.cursor()
+    print("Database Connection has been opened completely!")
     return connection, cursor
 
 
@@ -63,8 +66,8 @@ def query_photo(db_connection, db_cursor):
 
 # flickr api信息
 def flickrAPI():
-    api_key = u'382e669299b2ea33fa2288fd7180326a'
-    api_secret = u'b556d443c16be15e'
+    api_key = u'199ed59000c39dd0844b59d01fa7570c'
+    api_secret = u'4a2ce28f1bb8a1fe'
     flickr = flickrapi.FlickrAPI(api_key, api_secret, cache=True)
     return flickr
 
@@ -106,6 +109,16 @@ def get_photo_coordinates(connection, cursor, photo_id):
     return coordinates.input_coordinates(connection, cursor)
 
 
+# 关闭数据库
+def close_connection(connection):
+    try:
+        connection.close()
+        print("Database Connection has been closed completely!")
+        return True
+    except Exception as e:
+        print(e)
+
+
 # 主要步骤
 def __main__():
     connection, cursor = db_connect()
@@ -113,9 +126,11 @@ def __main__():
     while photo is not None:
         try:
             get_photo_coordinates(connection, cursor, photo)
+            time.sleep(1)
             photo = query_photo(connection, cursor)
         except Exception as  e:
             print(e)
+    close_connection(connection)
     print("All photos have information!")
 
 
