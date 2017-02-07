@@ -7,7 +7,7 @@ import psycopg2
 
 # 连接数据库
 def db_connect():
-    connection = psycopg2.connect(database="EmotionMap", user="postgres",
+    connection = psycopg2.connect(database="StockMap", user="postgres",
                                   password="postgres", host="127.0.0.1", port="5432")
     cursor = connection.cursor()
     return connection, cursor
@@ -15,7 +15,7 @@ def db_connect():
 
 def select_data(connection, cursor):
     try:
-        sql_command_select = "SELECT coordinates from photos where coordinates is not null"
+        sql_command_select = "SELECT photo.id,photo.coordinates,ms_emotion.happiness,ms_emotion.sadness FROM ms_emotion JOIN photo ON photo_id=ms_emotion.photo_id LIMIT 3;"
         cursor.execute(sql_command_select)
         return cursor.fetchall()
     except Exception as e:
@@ -24,7 +24,7 @@ def select_data(connection, cursor):
 
 
 connection, cursor = db_connect()
-co_file=open('StockMapCoordinates.txt','a')
+co_file=open('StockMapInfo.txt','a')
 for data in select_data(connection,cursor):
     x=str(data).split(',')[0].split('(')[2]
     y=str(data).split(',')[1].split(')')[0]

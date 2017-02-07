@@ -59,3 +59,7 @@ surprise FLOAT NOT NULL
 );
 CREATE INDEX ms_emotion_photo_id_index ON ms_emotion(photo_id);
 CREATE INDEX ms_emotion_happiness ON ms_emotion(happiness);
+
+SELECT photo.id,photo.coordinates,ms_emotion.happiness,ms_emotion.sadness
+FROM ms_emotion JOIN photo ON photo_id=ms_emotion.photo_id LIMIT 3
+

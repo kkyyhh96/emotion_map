@@ -57,7 +57,7 @@ def db_connect():
 
 # 查询存在人脸的照片
 def query_photo(connection, cursor):
-    sql_command_select = "SELECT * FROM photo WHERE f_hasface='TRUE' LIMIT 1"
+    sql_command_select = "SELECT * FROM photo WHERE f_hasface='TRUE' AND start_recog='FALSE' LIMIT 1"
     cursor.execute(sql_command_select)
     photo = cursor.fetchone()
     # 如果存在这样的照片,记录url
@@ -80,7 +80,8 @@ def emotion_recognition(url):
     headers = {
         # Request headers
         'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key': '7cefe0616f6d4354a0660b12b83811d8',
+        'Ocp-Apim-Subscription-Key': 'bd1a0a72e44a43788fdc1e12d7f93541',
+#        'Ocp-Apim-Subscription-Key': '7cefe0616f6d4354a0660b12b83811d8',
     }
 
     params = urllib.parse.urlencode({
@@ -102,19 +103,23 @@ def emotion_recognition(url):
 
 # 提取情绪值
 def emotion_input(emotion_info, id, site, connection, cursor):
-    emotion_info = emotion_info.decode()
-    emotions = json.loads(emotion_info)
-    for emotion in emotions:
-        anger = emotion['scores']['anger']
-        contempt = emotion['scores']['contempt']
-        disgust = emotion['scores']['disgust']
-        fear = emotion['scores']['fear']
-        happiness = emotion['scores']['happiness']
-        neutral = emotion['scores']['neutral']
-        sadness = emotion['scores']['sadness']
-        surprise = emotion['scores']['surprise']
-        face = emotion_face(id, site, anger, contempt, disgust, fear, happiness, neutral, sadness, surprise)
-        return face.input_emotion(connection, cursor)
+    try:
+        emotion_info = emotion_info.decode()
+        emotions = json.loads(emotion_info)
+        for emotion in emotions:
+            anger = emotion['scores']['anger']
+            contempt = emotion['scores']['contempt']
+            disgust = emotion['scores']['disgust']
+            fear = emotion['scores']['fear']
+            happiness = emotion['scores']['happiness']
+            neutral = emotion['scores']['neutral']
+            sadness = emotion['scores']['sadness']
+            surprise = emotion['scores']['surprise']
+            face = emotion_face(id, site, anger, contempt, disgust, fear, happiness, neutral, sadness, surprise)
+            return face.input_emotion(connection, cursor)
+    except Exception as e:
+        print(e)
+        return False
 
 
 # 关闭数据库
@@ -140,8 +145,12 @@ def __main__():
             count += 1
         #如果情绪不出错,则输入数据库中
         if emotion_info is not None:
-            if emotion_input(emotion_info, id, site, connection, cursor) is False:
-                emotion_info(emotion_info, id, site, connection, cursor)
+            try:
+                if emotion_input(emotion_info, id, site, connection, cursor) is False:
+                    emotion_info(emotion_info, id, site, connection, cursor)
+            except Exception as e:
+                print(e)
+        id,url,site=query_photo(connection,cursor)
     close_connection(connection)
 
 
