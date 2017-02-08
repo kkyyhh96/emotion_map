@@ -59,7 +59,12 @@ surprise FLOAT NOT NULL
 );
 CREATE INDEX ms_emotion_photo_id_index ON ms_emotion(photo_id);
 CREATE INDEX ms_emotion_happiness ON ms_emotion(happiness);
+CREATE INDEX ms_emotion_sadness ON ms_emotion(sadness);
 
 SELECT photo.id,photo.coordinates,ms_emotion.happiness,ms_emotion.sadness
 FROM ms_emotion JOIN photo ON photo_id=ms_emotion.photo_id LIMIT 3
+
+ALTER TABLE ms_emotion ADD coordinates POINT;
+ALTER TABLE ms_emotion ADD photo_take_date DATE;
+ALTER TABLE ms_emotion ADD start_join BOOLEAN NOT NULL DEFAULT(FALSE);
 
