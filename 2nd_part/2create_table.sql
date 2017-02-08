@@ -68,3 +68,18 @@ ALTER TABLE ms_emotion ADD coordinates POINT;
 ALTER TABLE ms_emotion ADD photo_take_date DATE;
 ALTER TABLE ms_emotion ADD start_join BOOLEAN NOT NULL DEFAULT(FALSE);
 
+
+create table face(
+id serial primary key,
+photo_id bigint,
+coordinates point,
+photo_time date,
+happy float,
+sad float);
+
+create index index_id on face(id);
+create index index_co on face using gist(coordinates);
+create index index_ti on face(photo_time);
+create index index_ha on face(happy);
+create index index_sa on face(sad);
+
