@@ -15,7 +15,7 @@ def db_connect():
 
 def select_data(connection, cursor):
     try:
-        sql_command_select = "SELECT photo_id,coordinates,photo_take_date,happiness,sadness FROM ms_emotion;"
+        sql_command_select = "SELECT photo_id,coordinates,photo_time,happy,sad,distance FROM face;"
         cursor.execute(sql_command_select)
         return cursor.fetchall()
     except Exception as e:
@@ -24,7 +24,7 @@ def select_data(connection, cursor):
 
 
 connection, cursor = db_connect()
-co_file=open('StockMapInfo.txt','a')
+co_file=open('StockMapInfoLocal.txt','a')
 for data in select_data(connection,cursor):
     try:
         photo_id=str(data).split(',')[0].split('(')[1]
@@ -35,7 +35,8 @@ for data in select_data(connection,cursor):
         day=str(data).split(',')[5].split(')')[0].split(' ')[1]
         happiness=str(data).split(',')[6]
         sadness=str(data).split(',')[7].split(')')[0]
+        distance=str(data).split(',')[8].split(')')[0]
     except Exception as e:
         continue
-    co_file.writelines("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(photo_id,x,y,year,month,day,happiness,sadness))
+    co_file.writelines("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(photo_id,x,y,year,month,day,happiness,sadness,distance))
 co_file.close()

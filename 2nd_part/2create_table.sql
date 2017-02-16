@@ -83,3 +83,4 @@ create index index_ti on face(photo_time);
 create index index_ha on face(happy);
 create index index_sa on face(sad);
 
+SELECT st_distance(st_geomfromtext('point({0} {1})',4326),st_geomfromtext('point(-74.0095 40.7064)',4326),true)
