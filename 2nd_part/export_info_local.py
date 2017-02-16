@@ -1,7 +1,6 @@
 # coding:utf-8
 # version:python3.5.1
 # author:kyh
-# 将数据从本地数据库导出
 import psycopg2
 
 
