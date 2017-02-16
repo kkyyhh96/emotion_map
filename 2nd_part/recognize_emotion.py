@@ -1,7 +1,7 @@
 # coding:utf-8
 # version:python3.5.1
 # author:kyh
-
+# 调用MS接口识别情绪
 import http.client
 import json
 import urllib.error
@@ -81,7 +81,7 @@ def emotion_recognition(url):
         # Request headers
         'Content-Type': 'application/json',
         'Ocp-Apim-Subscription-Key': 'bd1a0a72e44a43788fdc1e12d7f93541',
-#        'Ocp-Apim-Subscription-Key': '7cefe0616f6d4354a0660b12b83811d8',
+        #        'Ocp-Apim-Subscription-Key': '7cefe0616f6d4354a0660b12b83811d8',
     }
 
     params = urllib.parse.urlencode({
@@ -136,21 +136,21 @@ def __main__():
     connection, cursor = db_connect()
     id, url, site = query_photo(connection, cursor)
     while id is not None:
-        #如果id不为空,则探测人脸情绪
+        # 如果id不为空,则探测人脸情绪
         emotion_info = emotion_recognition(url)
         count = 0
-        #如果情绪出错,则重复3次探测
+        # 如果情绪出错,则重复3次探测
         while emotion_info is None and count <= 3:
             emotion_info = emotion_recognition(url)
             count += 1
-        #如果情绪不出错,则输入数据库中
+        # 如果情绪不出错,则输入数据库中
         if emotion_info is not None:
             try:
                 if emotion_input(emotion_info, id, site, connection, cursor) is False:
                     emotion_info(emotion_info, id, site, connection, cursor)
             except Exception as e:
                 print(e)
-        id,url,site=query_photo(connection,cursor)
+        id, url, site = query_photo(connection, cursor)
     close_connection(connection)
 
 
