@@ -8,19 +8,18 @@ import psycopg2
 
 # flickr照片类
 class flickr_photo(object):
-    def __init__(self, photo_id, photo_site, photo_url, photo_radius):
+    def __init__(self, photo_id, photo_site, photo_url):
         self.id = photo_id
         self.site = photo_site
         self.url = photo_url
-        self.radius = photo_radius
 
     # 将照片插入数据库
     def insert_db(self, db_connection, db_cursor):
         try:
-            sql_command_insert = "INSERT INTO photo(id,url,site,radius) VALUES({0},'{1}','{2}',{3})".format(self.id,
-                                                                                                            self.url,
-                                                                                                            self.site,
-                                                                                                            self.radius)
+            sql_command_insert = "INSERT INTO photo(id,url,site) VALUES({0},'{1}','{2}')".format(self.id,
+                                                                                                 self.url,
+                                                                                                 self.site
+                                                                                                 )
             db_cursor.execute(sql_command_insert)
             db_connection.commit()
             return True
@@ -52,13 +51,14 @@ def query_site(db_connection, db_cursor):
         site_name = site[1]
         lat = site[2].split(',')[0].split('(')[1]
         lon = site[2].split(',')[1].split(')')[0]
-        sql_command_update="UPDATE site SET start_query='TRUE' WHERE site_name='{0}'".format(site_name)
+        radius = site[3]
+        sql_command_update = "UPDATE site SET start_query='TRUE' WHERE site_name='{0}'".format(site_name)
         db_cursor.execute(sql_command_update)
         db_connection.commit()
-        return site_name, lat, lon
+        return site_name, lat, lon, radius
     # 不存在这样的地点,说明已经全部挖掘完毕
     else:
-        return None, None, None
+        return None, None, None, None
 
 
 # flickr api信息
@@ -97,7 +97,7 @@ def get_photo_from_location(db_connection, db_cursor, site, latitude, longitude,
             # 如果url不为空,将该图片插入数据库
             if url is not None:
                 photo_id = int(photo_url.get('id'))
-                photo = flickr_photo(photo_id, site, url, r)
+                photo = flickr_photo(photo_id, site, url)
                 if photo.insert_db(db_connection, db_cursor):
                     print("Success! Photo id:" + str(photo_id) + "\tPhoto url:" + url)
     except Exception as e:
@@ -105,7 +105,7 @@ def get_photo_from_location(db_connection, db_cursor, site, latitude, longitude,
 
 
 # 关闭数据库
-def close_connection(connection, site_name):
+def close_connection(connection):
     try:
         connection.close()
         print("Database Connection has been closed completely!")
@@ -117,9 +117,9 @@ def close_connection(connection, site_name):
 # 主操作步骤
 def __main__():
     db_connection, db_cursor = db_connect()
-    site, lat, lon = query_site(db_connection, db_cursor)
+    site, lat, lon, radius = query_site(db_connection, db_cursor)
     if site is not None:
-        compute_time(db_connection, db_cursor, site, lat, lon, r=30)
+        compute_time(db_connection, db_cursor, site, lat, lon, r=radius)
         close_connection(db_connection, site)
     else:
         print("All sites have been recorded!")
