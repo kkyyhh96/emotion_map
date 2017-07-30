@@ -11,7 +11,7 @@ class flickr_data(object):
         sql_line = "("
         for i in range(0, 23):
             if i is 3 or i is 4 or i is 10 or i is 11 or i is 12 or i is 17 or i is 18 or i is 22:
-                if data[i] is "":
+                if data[i] is "" or data[i] is "null":
                     data[i] = 0
             if i is not 22:
                 sql_line += "'" + str(data[i]) + "',"
@@ -40,19 +40,19 @@ def insert_data(connection, cursor, sql_command):
         cursor.execute(sql_command)
         connection.commit()
     except Exception as e:
-        write_log(str(e))
+        write_log(str(e),1)
         connection.rollback()
 
 
-def write_log(log):
-    log_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\log.txt", 'a')
+def write_log(log,fileid):
+    log_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\log{0}.txt".format(fileid), 'a')
     log_file.writelines(str(log))
     log_file.close()
 
 
 def __main__():
     # Parameter
-    file_id = 0  # indicate which file to be imported
+    file_id = 1  # indicate which file to be imported
     once_push_count = 10000  # indicate how many lines will be imported in one time
 
     # Connect database
@@ -73,6 +73,7 @@ def __main__():
             insert_data(con, cur, sql_command)
             sql_command = "INSERT INTO flickr VALUES "
             print(count)  # indicate how many data has been imported
+            break
         line = flickr_file.readline()
     flickr_file.close()
 
