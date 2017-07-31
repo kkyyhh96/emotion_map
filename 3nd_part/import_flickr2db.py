@@ -45,18 +45,18 @@ def insert_data(connection, cursor, sql_command, count):
         cursor.execute(sql_command)
         connection.commit()
     except Exception as e:
-        write_log(str(e), 1, count)
+        write_log(str(e), count)
         connection.rollback()
 
 
-def write_log(log, fileid, count):
-    log_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\log{0}.txt".format(fileid), 'a')
+def write_log(log, count):
+    log_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\log.txt", 'a')
     log_file.writelines(str(count) + "\n" + str(log))
     log_file.close()
 
 
 def __main__():
-    # Parameter
+    # Parameter can be modified
     file_id = 0  # indicate which file to be imported
     once_push_count = 10000  # indicate how many lines will be imported in one time
 
