@@ -1,7 +1,7 @@
 # coding:utf-8
 # version:python3.5.1
 # author:kyh
-# import each flickr data to database
+# import each flickr data to text
 import psycopg2
 
 
