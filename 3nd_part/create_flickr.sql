@@ -40,7 +40,7 @@ longitude FLOAT DEFAULT 0,
 latitude FLOAT DEFAULT 0,
 /*location POINT,*/
 accuracy INTEGER DEFAULT 0,
-download_url TEXT NOT NULL,
+download_url TEXT NOT NULL
 );
 CREATE INDEX iflickr_data_id0 ON flickr_data0(id);
 /*CREATE INDEX iflickr_location ON flickr USING GIST(location);*/

@@ -57,7 +57,7 @@ def write_log(log, count):
 
 def __main__():
     # Parameter can be modified
-    file_id = 0  # indicate which file to be imported
+    file_id = 2  # indicate which file to be imported
     once_push_count = 10000  # indicate how many lines will be imported in one time
 
     # Connect database
@@ -65,7 +65,7 @@ def __main__():
 
     # Open file
     flickr_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}".format(file_id), 'r')
-    sql_command = "INSERT INTO flickr VALUES "
+    sql_command = "INSERT INTO flickr2 VALUES "
     count = 0
     line = flickr_file.readline()
     while line:
@@ -76,7 +76,7 @@ def __main__():
         if count % once_push_count == 0:
             sql_command = sql_command[0:-1]
             insert_data(con, cur, sql_command, count)
-            sql_command = "INSERT INTO flickr VALUES "
+            sql_command = "INSERT INTO flickr2 VALUES "
             print(count)  # indicate how many data has been imported
             # break
         line = flickr_file.readline()
