@@ -8,10 +8,11 @@
 class flickr_data(object):
     def create_data_geotag(self, id, userid, photo_date_taken, photo_date_upload,
                            title, description, user_tags, longitude, latitude, accuracy, download_url):
-        if longitude == 0:
+        if longitude == 0 or photo_date_taken == "null":
             return None
+            '''
         elif photo_date_taken == "null":
-            flickr_str = "{0},'{1}',{2},'{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}'\n".format(id, userid,
+            flickr_str = "{0}\t'{1}'\t{2}\t{3}\t'{4}'\t'{5}'\t'{6}'\t{7}\t{8}\t{9}\t'{10}'\n".format(id, userid,
                                                                                                    photo_date_taken,
                                                                                                    photo_date_upload,
                                                                                                    title, description,
@@ -19,15 +20,18 @@ class flickr_data(object):
                                                                                                    latitude, accuracy,
                                                                                                    download_url)
             return flickr_str
+            '''
         else:
-            flickr_str = "{0},'{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}'\n".format(id, userid,
-                                                                                                     photo_date_taken,
-                                                                                                     photo_date_upload,
-                                                                                                     title, description,
-                                                                                                     user_tags,
-                                                                                                     longitude,
-                                                                                                     latitude, accuracy,
-                                                                                                     download_url)
+            flickr_str = "{0}\t'{1}'\t'{2}'\t{3}\t'{4}'\t'{5}'\t'{6}'\t{7}\t{8}\t{9}\t'{10}'\n".format(id, userid,
+                                                                                                       photo_date_taken,
+                                                                                                       photo_date_upload,
+                                                                                                       title,
+                                                                                                       description,
+                                                                                                       user_tags,
+                                                                                                       longitude,
+                                                                                                       latitude,
+                                                                                                       accuracy,
+                                                                                                       download_url)
             return flickr_str
 
     def create_data(self, fileline):
@@ -44,11 +48,11 @@ class flickr_data(object):
 
 def __main__():
     # Parameter can be modified
-    file_id = 4  # indicate which file to be imported
+    file_id = 9  # indicate which file to be imported
     once_push_count = 10000  # indicate how many lines will be imported in one time
 
     flickr_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}".format(file_id), 'r')
-    new_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}-r.csv".format(file_id),
+    new_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}-x.csv".format(file_id),
                     'a')
     line = flickr_file.readline()
     count = 1
