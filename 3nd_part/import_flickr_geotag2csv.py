@@ -48,11 +48,11 @@ class flickr_data(object):
 
 def __main__():
     # Parameter can be modified
-    file_id = 9  # indicate which file to be imported
+    file_id = 7  # indicate which file to be imported
     once_push_count = 10000  # indicate how many lines will be imported in one time
 
     flickr_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}".format(file_id), 'r')
-    new_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}-x.csv".format(file_id),
+    new_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}-x-0.csv".format(file_id),
                     'a')
     line = flickr_file.readline()
     count = 1
@@ -65,6 +65,12 @@ def __main__():
         count += 1
         if count % once_push_count == 0:
             print(count)
+        # Addition part
+        if (count-1) % 2000000 == 0:
+            new_file.close()
+            new_file = open("E:\BaiduNetdiskDownload\Flicker_geotag_library\AWS\yfcc100m_dataset-{0}-x-{1}.csv".format(file_id,int((count-1)/2000000)),
+                    'a')
+        # End addition part
     flickr_file.close()
     new_file.close()
 
